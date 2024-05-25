@@ -18,10 +18,10 @@ class MyApp extends StatelessWidget {
         title: "Namer App",
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme:
-              ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 0, 222, 7)),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 0, 222, 7)),
         ),
-        home: MyHomePage(),
+        home: const MyHomePage(),
       ),
     );
   }
@@ -33,13 +33,32 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+
+  var favoriteWords = <WordPair>[];
+  void toggleFavorite() {
+    if (favoriteWords.contains(current)) {
+      favoriteWords.remove(current);
+    } else {
+      favoriteWords.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var wordPair = appState.current;
+
+    IconData icon;
+    if (appState.favoriteWords.contains(wordPair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(
       body: Center(
@@ -47,22 +66,32 @@ class MyHomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             PairWords(wordPair: wordPair),
-            SizedBox(
-              height: 10.0,
+            const SizedBox(
+              height: 15.0,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: const Text("Next Word",
-                    style: TextStyle(color: Color.fromRGBO(144, 0, 255, 1))),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                    onPressed: () {
+                      appState.toggleFavorite();
+                    },
+                    label: const Text("Like"),
+                    icon: Icon(icon)),
+                    const SizedBox(width: 15),
+                ElevatedButton(
+                    onPressed: () {
+                      appState.getNext();
+                    },
                     //* button's style
-                style: ElevatedButton.styleFrom(
-                  ,
-                  side: BorderSide(
-                      color: Color.fromRGBO(144, 0, 255, 1),
-                      width: 2.0)
-                ))
+                    style: ElevatedButton.styleFrom(
+                        side: const BorderSide(
+                            color: Color.fromRGBO(144, 0, 255, 1), width: 2.0)),
+                    child: const Text("Next Word",
+                        style:
+                            TextStyle(color: Color.fromRGBO(144, 0, 255, 1)))),
+              ],
+            )
           ],
         ),
       ),
