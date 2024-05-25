@@ -45,14 +45,64 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  var selectedIndex = 0;
+  @override
+  Widget build(BuildContext context) {
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = GeneratorPage();
+        break;
+      case 1:
+        page = Placeholder();
+        break;
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');
+    }
+    return Scaffold(
+      body: Row(
+        children: [
+          SafeArea(
+              child: NavigationRail(
+            destinations: const [
+              NavigationRailDestination(
+                  icon: Icon(Icons.home), label: Text("Home")),
+              NavigationRailDestination(
+                  icon: Icon(Icons.favorite), label: Text("Favorites"))
+            ],
+            selectedIndex: selectedIndex,
+            onDestinationSelected: (value) {
+              setState(() {
+                selectedIndex = value;
+              });
+            },
+          )),
+          Expanded(
+              child: Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: const GeneratorPage(),
+          ))
+        ],
+      ),
+    );
+  }
+}
+
+class GeneratorPage extends StatelessWidget {
+  const GeneratorPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var wordPair = appState.current;
-
     IconData icon;
     if (appState.favoriteWords.contains(wordPair)) {
       icon = Icons.favorite;
@@ -61,41 +111,39 @@ class MyHomePage extends StatelessWidget {
     }
 
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PairWords(wordPair: wordPair),
-            const SizedBox(
-              height: 15.0,
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton.icon(
-                    onPressed: () {
-                      appState.toggleFavorite();
-                    },
-                    label: const Text("Like"),
-                    icon: Icon(icon)),
-                    const SizedBox(width: 15),
-                ElevatedButton(
-                    onPressed: () {
-                      appState.getNext();
-                    },
-                    //* button's style
-                    style: ElevatedButton.styleFrom(
-                        side: const BorderSide(
-                            color: Color.fromRGBO(144, 0, 255, 1), width: 2.0)),
-                    child: const Text("Next Word",
-                        style:
-                            TextStyle(color: Color.fromRGBO(144, 0, 255, 1)))),
-              ],
-            )
-          ],
-        ),
+        body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          PairWords(wordPair: wordPair),
+          const SizedBox(
+            height: 15.0,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  label: const Text("Like"),
+                  icon: Icon(icon)),
+              const SizedBox(width: 15),
+              ElevatedButton(
+                  onPressed: () {
+                    appState.getNext();
+                  },
+                  //* button's style
+                  style: ElevatedButton.styleFrom(
+                      side: const BorderSide(
+                          color: Color.fromRGBO(144, 0, 255, 1), width: 2.0)),
+                  child: const Text("Next Word",
+                      style: TextStyle(color: Color.fromRGBO(144, 0, 255, 1)))),
+            ],
+          )
+        ],
       ),
-    );
+    ));
   }
 }
 
